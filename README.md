@@ -1,1 +1,5 @@
-Capstone project GitLab Repo
+# Saving Nature Capstone Project
+
+## Team Charter
+
+Team_Charter.docx
