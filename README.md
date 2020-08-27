@@ -1,2 +1,7 @@
-Saving Nature Project
+# Saving Nature Capstone Project
+
+## Team Charter
+
+Team_Charter.docx
+
 
