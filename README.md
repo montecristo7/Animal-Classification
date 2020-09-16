@@ -13,4 +13,14 @@ Rename and move folder to `./data/raw/brazil_amld`.
 
 ## 3. Run python script to clean directory
 
+`python3 src/data/clean_directory.py [location_name]`
+
+sample for brazil_amld:
 `python3 src/data/clean_directory.py brazil_amld`
+
+## 4. Run python script to make dataset - binary classification
+
+`python3 src/data/create_dataset.py image_classification [dataset_num] [location_name] [proportion for train] [proportion for val] [proportion for test] [random_state]`
+
+sample for brazil_amld:
+`python3 src/data/create_dataset.py image_classification dataset01 brazil_amld 0.7 0.1 0.2 0`
