@@ -1,11 +1,10 @@
 # Saving Nature Capstone Project
 
 ## 1. Conda environment setup
-`conda create -n savingnature python=3.7`
 
-`conda activate savingnature`
+`conda env create --file environment.yaml -n savingnature`
 
-`conda install --file requirements.txt`
+To export your environment: `conda env export --no-builds --from-history > environment.yaml`
 
 ## 2. Download raw data from OneDrive
 
