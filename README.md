@@ -27,7 +27,7 @@ sample for brazil_amld:
 
 ## 5. Data preparation for Image Classification and Vidoe Processing
 
-Python script for seperate and flatten the data: classification/Flatten_Images_Hierarchy.ipynb 
+Python script for seperating and flattening the data: classification/Flatten_Images_Hierarchy.ipynb 
 
 Duke Box for images: https://duke.app.box.com/folder/123096152500
 
