@@ -83,7 +83,7 @@ def extract_to_csv(location_dict, csv_name, path_interim):
         df = df.append(location_dict[k], ignore_index=True)
 
     # mapping of species to binary label
-    species_na_list = ["Human", "team", "Unknown"]
+    species_na_list = ["Human", "team", "Unknown", "NonIdent"]
     df["species_binary"] = np.where(df.species=="Ghost", "Ghost",
                                     np.where(df.species.isin(species_na_list), "Exclude", "Animal"))
 
