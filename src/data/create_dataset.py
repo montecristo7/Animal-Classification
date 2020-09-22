@@ -10,15 +10,15 @@ import sys
 def train_val_test_split(df_ds, split_ratio = [0.7, 0.1, 0.2], random_state=0):
     # train, val, test split
     df_train_val, df_test = train_test_split(df_ds, test_size=split_ratio[2],
-                                             stratify=df_ds.species_binary, random_state=random_state)
+                                             stratify=df_ds.species_new, random_state=random_state)
     df_train, df_val = train_test_split(df_train_val, test_size=round(split_ratio[1]/(split_ratio[0]+split_ratio[1]), 3),
-                                        stratify=df_train_val.species_binary, random_state=random_state)
+                                        stratify=df_train_val.species_new, random_state=random_state)
     # append splits back together
     df_train = df_train.assign(split="train")
     df_val = df_val.assign(split="val")
     df_test = df_test.assign(split="test")
     df_ds_split = df_train.append(df_val).append(df_test)
-    print(f"dataset split: train {split_ratio[0]}%, val {split_ratio[1]}%, test {split_ratio[2]}%")
+    print(f"dataset split: train {split_ratio[0]*100:.0f}%, val {split_ratio[1]*100:.0f}%, test {split_ratio[2]*100:.0f}%")
     return df_ds_split
 
 
@@ -32,6 +32,9 @@ def extract_df_ds(input_file):
     df_ds.index.rename("ds_id", inplace=True)
     df_ds = df_ds.reset_index()
     df_ds.ds_id = df_ds.ds_id.astype("str").str.zfill(4)
+    # generate species_new
+    df_ds['species_new'] = df_ds.species.where(
+        df_ds.apply(lambda x: x.map(x.value_counts())).species >= 2, "Other")
     df_ds['label'] = df_ds.species_binary.replace({"Ghost": 0, "Animal": 1})
     return df_ds
 
