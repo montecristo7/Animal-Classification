@@ -25,10 +25,3 @@ sample for brazil_amld:
 sample for brazil_amld:
 `python3 src/data/create_dataset.py image_classification dataset01 brazil_amld 0.7 0.1 0.2 0`
 
-## 5. Data preparation for Image Classification and Video Processing
-
-Python script for seperating and flattening the data: classification/Flatten_Images_Hierarchy.ipynb 
-
-Duke Box for images: https://duke.app.box.com/folder/123096152500
-
-Duke Box for videos: https://duke.app.box.com/folder/123095714611
