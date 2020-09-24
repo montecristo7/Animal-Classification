@@ -1,59 +1,85 @@
-import numpy as np
-import pandas as pd
-import torch
+import os
+import pathlib
+
 from skimage import io
+from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset
+from torchvision import transforms
+
+default_train_transform = transforms.Compose([
+    transforms.ToPILImage(),
+    transforms.Resize(size=(1440, 1920)),
+    transforms.RandomRotation(degrees=15),
+    transforms.RandomHorizontalFlip(),
+    transforms.ToTensor(),
+])
+
+default_val_transform = transforms.Compose([
+    transforms.ToPILImage(),
+    transforms.Resize(size=(1440, 1920)),
+    transforms.ToTensor(),
+])
 
 
 class Classification_Dataset(Dataset):
-    def __init__(self, csv_file, root_dir, transforms=None, random_sample=None):
-        if random_sample:
-            self.landmarks_frame = pd.read_csv(csv_file, header=None, delimiter='\t').sample(random_sample)
-        else:
-            self.landmarks_frame = pd.read_csv(csv_file, header=None, delimiter='\t')
+    def __init__(self, set_name, root_dir, val_size=0.2, transform_func=default_train_transform, random_state=1):
+        species_category = {
+            'Guerlinguetus': 'Rodents',
+            'CuniculusPaca': 'Rodents',
+            'Rodent': 'Rodents',
+            'MarmosopsIncanus': 'Opossums',
+            'MetachirusMyosurus': 'Opossums',
+            'DidelphisAurita': 'Opossums',
+            'CaluromysPhilander': 'Opossums',
+            'Ghost': 'Ghost',
+            'LeopardusWiedii': 'Felines',
+            'LeopardusPardalis': 'Felines',
+            'Bird': 'Birds',
+            'PenelopeSuperciliaris': 'Birds',
+            'LeptotilaRufaxilla': 'Birds',
+            'CabassousTatouay': 'SmallMammals',
+            'TamanduaTetradactyla': 'SmallMammals',
+            'EuphractusSexcinctus': 'SmallMammals',
+            'ProcyonCancrivorus': 'SmallMammals',
+            'DasypusNovemcinctus': 'SmallMammals',
+            'NasuaNasua': 'SmallMammals',
+            'EiraBarbara': 'SmallMammals',
+            'SalvatorMerianae': 'Reptiles',
+            'CerdocyonThous': 'Canines',
+            'CanisLupusFamiliaris': 'Canines',
+            'Unknown': 'Exclude',
+            'Human': 'Exclude',
+            'team': 'Exclude',
+            'NonIdent': 'Exclude'
+        }
         self.root_dir = root_dir
-        self.transforms = transforms
+        self.transform_func = transform_func
+
+        raw_files = [file.split('.')[0].split('_') for file in os.listdir(root_dir) if file.endswith('.jpg')]
+        self.image_files = [[species_category.get(image[0], 'Exclude')] + image for image in raw_files]
+
+        self.species = [spec[0] for spec in self.image_files]
+        self.cam_trap = [spec[2] for spec in self.image_files]
+
+        self.train, self.val = train_test_split(self.image_files, test_size=val_size, random_state=random_state,
+                                                stratify=self.species)
+
+        if set_name == 'full':
+            self.dataset = self.image_files
+        elif set_name == 'train':
+            self.dataset = self.train
+        elif set_name == 'validation':
+            self.dataset = self.val
+        else:
+            raise ValueError('Unknown set_name: ' + str(set_name))
 
     def __len__(self):
-        return len(self.landmarks_frame)
+        return len(self.dataset)
 
     def __getitem__(self, idx):
-        # load images ad masks
-        img_path = self.root_dir + self.landmarks_frame.iloc[idx, 0].split('/')[-1] + '.png'
-
+        img_path = pathlib.Path(self.root_dir) / '{}.jpg'.format('_'.join(self.dataset[idx][1:]))
         img = io.imread(img_path)
+        img = img if self.transform_func is None else self.transform_func(img)
 
-        landmarks = self.landmarks_frame.iloc[idx, 1]
-        landmarks = landmarks.strip("][").replace("'", '').replace('"', '').split(', ')
-        landmarks = np.array(landmarks)
-        landmarks = landmarks.astype('float')
-
-        x, y, w, h = landmarks
-        landmarks = np.array([x, y, x + w, y + h])
-
-        # convert everything into a torch.Tensor
-        boxes = torch.as_tensor(landmarks, dtype=torch.float32).view((1, 4))
-        # there is only one class
-        labels = torch.ones((1,), dtype=torch.int64)
-        masks = torch.ones(img.shape[:-1], dtype=torch.uint8)
-
-        image_id = torch.tensor([idx])
-        area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
-        # suppose all instances are not crowd
-        iscrowd = torch.zeros((1,), dtype=torch.int64)
-
-        target = {}
-        target["boxes"] = boxes
-        target["labels"] = labels
-        target["masks"] = masks
-        target["image_id"] = image_id
-        target["area"] = area
-        target["iscrowd"] = iscrowd
-
-        if self.transforms is not None:
-            img, target = self.transforms(img, target)
-
+        target = self.dataset[idx][0]
         return img, target
-
-    def __len__(self):
-        return len(self.landmarks_frame)
