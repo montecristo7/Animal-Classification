@@ -22,7 +22,7 @@ default_val_transform = transforms.Compose([
 
 
 class Classification_Dataset(Dataset):
-    def __init__(self, set_name, root_dir, val_size=0.2, transform_func=default_train_transform, random_state=1):
+    def __init__(self, set_name, root_dir, val_size=0.2, random_state=1):
         species_category = {
             'Guerlinguetus': 'Rodents',
             'CuniculusPaca': 'Rodents',
@@ -53,7 +53,6 @@ class Classification_Dataset(Dataset):
             'NonIdent': 'Exclude'
         }
         self.root_dir = root_dir
-        self.transform_func = transform_func
 
         raw_files = [file.split('.')[0].split('_') for file in os.listdir(root_dir) if file.endswith('.jpg')]
         self.image_files = [[species_category.get(image[0], 'Exclude')] + image for image in raw_files]
@@ -66,10 +65,13 @@ class Classification_Dataset(Dataset):
 
         if set_name == 'full':
             self.dataset = self.image_files
+            self.transform_func = default_train_transform
         elif set_name == 'train':
             self.dataset = self.train
+            self.transform_func = default_train_transform
         elif set_name == 'validation':
             self.dataset = self.val
+            self.transform_func = default_val_transform
         else:
             raise ValueError('Unknown set_name: ' + str(set_name))
 
