@@ -4,60 +4,24 @@ import pathlib
 from skimage import io
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset
-from torchvision import transforms
 
-default_train_transform = transforms.Compose([
-    transforms.ToPILImage(),
-    transforms.Resize(size=(1440, 1920)),
-    transforms.RandomRotation(degrees=15),
-    transforms.RandomHorizontalFlip(),
-    transforms.ToTensor(),
-])
-
-default_val_transform = transforms.Compose([
-    transforms.ToPILImage(),
-    transforms.Resize(size=(1440, 1920)),
-    transforms.ToTensor(),
-])
+from constant import default_train_transform, default_val_transform, species_category
 
 
-class Classification_Dataset(Dataset):
-    def __init__(self, set_name, root_dir, val_size=0.2, random_state=1):
-        species_category = {
-            'Guerlinguetus': 'Rodents',
-            'CuniculusPaca': 'Rodents',
-            'Rodent': 'Rodents',
-            'MarmosopsIncanus': 'Opossums',
-            'MetachirusMyosurus': 'Opossums',
-            'DidelphisAurita': 'Opossums',
-            'CaluromysPhilander': 'Opossums',
-            'Ghost': 'Ghost',
-            'LeopardusWiedii': 'Felines',
-            'LeopardusPardalis': 'Felines',
-            'Bird': 'Birds',
-            'PenelopeSuperciliaris': 'Birds',
-            'LeptotilaRufaxilla': 'Birds',
-            'CabassousTatouay': 'SmallMammals',
-            'TamanduaTetradactyla': 'SmallMammals',
-            'EuphractusSexcinctus': 'SmallMammals',
-            'ProcyonCancrivorus': 'SmallMammals',
-            'DasypusNovemcinctus': 'SmallMammals',
-            'NasuaNasua': 'SmallMammals',
-            'EiraBarbara': 'SmallMammals',
-            'SalvatorMerianae': 'Reptiles',
-            'CerdocyonThous': 'Canines',
-            'CanisLupusFamiliaris': 'Canines',
-            'Unknown': 'Exclude',
-            'Human': 'Exclude',
-            'team': 'Exclude',
-            'NonIdent': 'Exclude'
-        }
+class ClassificationDataset(Dataset):
+    def __init__(self, set_name, root_dir, val_size=0.2, random_state=1, exclude_category=('Exclude',)):
+
         self.root_dir = root_dir
 
         raw_files = [file.split('.')[0].split('_') for file in os.listdir(root_dir) if file.endswith('.jpg')]
         self.image_files = [[species_category.get(image[0], 'Exclude')] + image for image in raw_files]
+        if exclude_category:
+            self.image_files = [image for image in self.image_files if image[0] not in exclude_category]
 
         self.species = [spec[0] for spec in self.image_files]
+        unique_species = sorted(list(set(self.species)))
+        self.species_classes_map = {spec: unique_species.index(spec) for spec in unique_species}
+        self.classes = list(self.species_classes_map.keys())
         self.cam_trap = [spec[2] for spec in self.image_files]
 
         self.train, self.val = train_test_split(self.image_files, test_size=val_size, random_state=random_state,
@@ -84,4 +48,4 @@ class Classification_Dataset(Dataset):
         img = img if self.transform_func is None else self.transform_func(img)
 
         target = self.dataset[idx][0]
-        return img, target
+        return img, self.species_classes_map[target]
