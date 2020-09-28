@@ -10,7 +10,7 @@ from classification_dataload import ClassificationDataset
 from util import train_model
 
 
-def resnet_classification(loading_model=False):
+def resnet_classification(loading_model=False, model_name='resnet101'):
     image_datasets = {x: ClassificationDataset(set_name=x, root_dir='images')
                       for x in ['train', 'validation']}
     dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,
@@ -19,7 +19,20 @@ def resnet_classification(loading_model=False):
     class_names = image_datasets['train'].classes
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'validation']}
-    model_ft = models.resnet101(pretrained=True)
+
+    if model_name.startswith('resnet101'):
+        model_ft = models.resnet101(pretrained=True)
+    elif model_name.startswith('resnet50'):
+        model_ft = models.resnet50(pretrained=True)
+    elif model_name.startswith('resnet34'):
+        model_ft = models.resnet34(pretrained=True)
+    elif model_name.startswith('resnet18'):
+        model_ft = models.resnet18(pretrained=True)
+    elif model_name.startswith('resnet152'):
+        model_ft = models.resnet152(pretrained=True)
+    else:
+        raise ValueError('unknown resnet model {}'.format(model_name))
+
     num_ftrs = model_ft.fc.in_features
     model_ft.fc = nn.Linear(num_ftrs, len(dataloaders['train'].dataset.classes))
     model_ft = model_ft.to(device)
@@ -35,14 +48,14 @@ def resnet_classification(loading_model=False):
                                      dataloaders=dataloaders, device=device, dataset_sizes=dataset_sizes,
                                      num_epochs=100)
 
-        torch.save(model_ft.state_dict(), 'resnet101.pth')
-        pickle.dump(hist, open('resnet101.list', "wb"))
+        torch.save(model_ft.state_dict(), '{}.pth'.format(model_name))
+        pickle.dump(hist, open('{}.list'.format(model_name), "wb"))
 
     else:
-        model_ft.load(torch.load('resnet101.pth'))
-        hist = pickle.load(open('resnet101.list', "rb"))
+        model_ft.load(torch.load('{}.pth'.format(model_name)))
+        hist = pickle.load(open('{}.list'.format(model_name), "rb"))
     return model_ft, hist
 
 
 if __name__ == '__main__':
-    resnet_classification(loading_model=False)
+    resnet_classification(loading_model=False, model_name='resnet101')
