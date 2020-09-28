@@ -58,4 +58,4 @@ def resnet_classification(loading_model=False, model_name='resnet101'):
 
 
 if __name__ == '__main__':
-    resnet_classification(loading_model=False, model_name='resnet101')
+    model_ft, hist = resnet_classification(loading_model=False, model_name='resnet101')
