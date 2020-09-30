@@ -24,7 +24,6 @@ class ClassificationDataset(Dataset):
         unique_species = sorted(list(set(self.species)))
         self.species_classes_map = {spec: unique_species.index(spec) for spec in unique_species}
         self.classes = list(self.species_classes_map.keys())
-        self.cam_trap = [spec[2] for spec in self.image_files]
 
         self.train, self.val = train_test_split(self.image_files, test_size=val_size, random_state=random_state,
                                                 stratify=self.species)
@@ -43,6 +42,9 @@ class ClassificationDataset(Dataset):
             self.transform_func = default_val_transform
         else:
             raise ValueError('Unknown set_name: ' + str(set_name))
+
+        self.data_set_species = [spec[0] for spec in self.dataset]
+        self.cam_trap = [spec[3] if len(spec) == 12 else '_'.join(spec[3:5]) for spec in self.dataset]
 
     def __len__(self):
         return len(self.dataset)

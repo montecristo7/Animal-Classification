@@ -4,10 +4,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.optim import lr_scheduler
-from torchvision import models
 
 from classification_dataload import ClassificationDataset
-from util import train_model
+from util import train_model, initialize_model
 
 
 def resnet_classification(loading_model=False, image_root='trainval', model_name='resnet101', target_category='species_binary', num_epochs=10):
@@ -20,18 +19,7 @@ def resnet_classification(loading_model=False, image_root='trainval', model_name
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'validation']}
 
-    if model_name.startswith('resnet101'):
-        model_ft = models.resnet101(pretrained=True)
-    elif model_name.startswith('resnet50'):
-        model_ft = models.resnet50(pretrained=True)
-    elif model_name.startswith('resnet34'):
-        model_ft = models.resnet34(pretrained=True)
-    elif model_name.startswith('resnet18'):
-        model_ft = models.resnet18(pretrained=True)
-    elif model_name.startswith('resnet152'):
-        model_ft = models.resnet152(pretrained=True)
-    else:
-        raise ValueError('unknown resnet model {}'.format(model_name))
+    model_ft = initialize_model(model_name)
 
     num_ftrs = model_ft.fc.in_features
     model_ft.fc = nn.Linear(num_ftrs, len(dataloaders['train'].dataset.classes))
@@ -52,7 +40,7 @@ def resnet_classification(loading_model=False, image_root='trainval', model_name
         pickle.dump(hist, open('{}.list'.format(model_name), "wb"))
 
     else:
-        model_ft.load(torch.load('{}.pth'.format(model_name)))
+        model_ft.load_state_dict(torch.load('{}.pth'.format(model_name)))
         hist = pickle.load(open('{}.list'.format(model_name), "rb"))
     return model_ft, hist
 

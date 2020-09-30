@@ -1,24 +1,97 @@
 import copy
 import time
 
+import numpy
 import torch
 from matplotlib import pyplot as plt
+from sklearn import metrics
+from torchvision import models
 
 
-def imshow(inp, title=None):
+def imshow(inps, title=None, savefig=None):
     """Imshow for Tensor."""
-    inp = inp.numpy().transpose((1, 2, 0))
-    fig = plt.figure(figsize=(25, 8), dpi=100, facecolor='w', edgecolor='k')
-    plt.imshow(inp)
+    if len(inps.shape) > 3:
+        inps = numpy.concatenate([inps[i, :, :, :].numpy() for i in range(inps.shape[0])], axis=2).transpose((1, 2, 0))
+    else:
+        inps = inps.numpy().transpose((1, 2, 0))
+    fig = plt.figure(figsize=(20, 8), dpi=80, facecolor='w', edgecolor='k')
+
+    plt.imshow(inps)
     if title is not None:
         plt.title(', '.join(title))
+
+    if savefig:
+        fig1 = plt.gcf()
+        fig1.savefig(savefig, dpi=100, facecolor='w', edgecolor='k')
     plt.pause(0.001)  # pause a bit so that plots are updated
+
+
+def roc(lr_probs, testy, savefig=None):
+    ns_probs = [0 for _ in range(len(testy))]
+    # calculate scores
+    ns_auc = metrics.roc_auc_score(testy, ns_probs)
+    lr_auc = metrics.roc_auc_score(testy, lr_probs)
+    # summarize scores
+    print('No Skill: ROC AUC=%.3f' % (ns_auc))
+    print('Model: ROC AUC=%.3f' % (lr_auc))
+    # calculate roc curves
+    ns_fpr, ns_tpr, _ = metrics.roc_curve(testy, ns_probs)
+    lr_fpr, lr_tpr, _ = metrics.roc_curve(testy, lr_probs)
+
+    fig = plt.figure(figsize=(15, 12), dpi=50, facecolor='w', edgecolor='k')
+    # plot the roc curve for the model
+    plt.plot(ns_fpr, ns_tpr, linestyle='--', label='No Skill')
+    plt.plot(lr_fpr, lr_tpr, marker='.', label='Model')
+    # axis labels
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('ROC Curve')
+    # show the legend
+    plt.legend()
+    # show the plot
+    if savefig:
+        fig1 = plt.gcf()
+        plt.savefig(savefig, dpi=100, facecolor='w', edgecolor='k')
+    plt.show()
+
+
+def prc(pred_list, lr_probs, testy, savefig=None):
+    yhat = pred_list
+    lr_precision, lr_recall, _ = metrics.precision_recall_curve(testy, lr_probs)
+    lr_f1, lr_auc = metrics.f1_score(testy, yhat), metrics.auc(lr_recall, lr_precision)
+    # summarize scores
+    print('Model: f1=%.3f auc=%.3f' % (lr_f1, lr_auc))
+    fig = plt.figure(figsize=(15, 12), dpi=50, facecolor='w', edgecolor='k')
+    # plot the precision-recall curves
+    no_skill = len(testy[testy == 1]) / len(testy)
+    plt.plot([0, 1], [no_skill, no_skill], linestyle='--', label='No Skill')
+    plt.plot(lr_recall, lr_precision, marker='.', label='Model')
+    # axis labels
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title('Precision-Recall Curve')
+    # show the legend
+    plt.legend()
+    # show the plot
+    if savefig:
+        fig1 = plt.gcf()
+        plt.savefig(savefig, dpi=100, facecolor='w', edgecolor='k')
+    plt.show()
 
 
 def train_model(model, criterion, optimizer, scheduler, dataloaders, device, dataset_sizes, num_epochs=25):
     since = time.time()
 
-    val_acc_history = []
+    hist = {
+        'train': {
+            'epoch_loss': [],
+            'epoch_acc': [],
+        },
+        'validation': {
+            'epoch_loss': [],
+            'epoch_acc': [],
+        }
+    }
 
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
@@ -74,7 +147,8 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device, dat
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
 
-                val_acc_history.append(epoch_acc)
+            hist[phase]['epoch_loss'].append(epoch_loss)
+            hist[phase]['epoch_acc'].append(epoch_acc)
 
         print()
 
@@ -85,4 +159,20 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device, dat
 
     # load best model weights
     model.load_state_dict(best_model_wts)
-    return model, val_acc_history
+    return model, hist
+
+
+def initialize_model(model_name):
+    if model_name.startswith('resnet101'):
+        model_ft = models.resnet101(pretrained=True)
+    elif model_name.startswith('resnet50'):
+        model_ft = models.resnet50(pretrained=True)
+    elif model_name.startswith('resnet34'):
+        model_ft = models.resnet34(pretrained=True)
+    elif model_name.startswith('resnet18'):
+        model_ft = models.resnet18(pretrained=True)
+    elif model_name.startswith('resnet152'):
+        model_ft = models.resnet152(pretrained=True)
+    else:
+        raise ValueError('unknown resnet model {}'.format(model_name))
+    return model_ft
