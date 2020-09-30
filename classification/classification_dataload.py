@@ -5,16 +5,18 @@ from skimage import io
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset
 
-from constant import default_train_transform, default_val_transform, species_category
+from constant import default_train_transform, default_val_transform, get_image_category
 
 
 class ClassificationDataset(Dataset):
-    def __init__(self, set_name, root_dir, val_size=0.2, random_state=1, exclude_category=('Exclude',)):
+    def __init__(self, set_name, root_dir, val_size=0.15, random_state=1, exclude_category=('Exclude',),
+                 target_category='species_binary'):
 
         self.root_dir = root_dir
+        species_category = get_image_category(target_category=target_category)
 
         raw_files = [file.split('.')[0].split('_') for file in os.listdir(root_dir) if file.endswith('.jpg')]
-        self.image_files = [[species_category.get(image[0], 'Exclude')] + image for image in raw_files]
+        self.image_files = [[species_category.get(image[-8], 'Exclude')] + image for image in raw_files]
         if exclude_category:
             self.image_files = [image for image in self.image_files if image[0] not in exclude_category]
 
@@ -35,6 +37,9 @@ class ClassificationDataset(Dataset):
             self.transform_func = default_train_transform
         elif set_name == 'validation':
             self.dataset = self.val
+            self.transform_func = default_val_transform
+        elif set_name == 'test':
+            self.dataset = self.image_files
             self.transform_func = default_val_transform
         else:
             raise ValueError('Unknown set_name: ' + str(set_name))

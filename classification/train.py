@@ -10,11 +10,11 @@ from classification_dataload import ClassificationDataset
 from util import train_model
 
 
-def resnet_classification(loading_model=False, model_name='resnet101'):
-    image_datasets = {x: ClassificationDataset(set_name=x, root_dir='images')
+def resnet_classification(loading_model=False, image_root='trainval', model_name='resnet101', target_category='species_binary', num_epochs=10):
+    image_datasets = {x: ClassificationDataset(set_name=x, root_dir=image_root, target_category=target_category)
                       for x in ['train', 'validation']}
-    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,
-                                                  shuffle=True, num_workers=4)
+    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=6,
+                                                  shuffle=True, num_workers=6)
                    for x in ['train', 'validation']}
     class_names = image_datasets['train'].classes
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -46,7 +46,7 @@ def resnet_classification(loading_model=False, model_name='resnet101'):
 
         model_ft, hist = train_model(model_ft, criterion_ft, optimizer_ft, exp_lr_scheduler,
                                      dataloaders=dataloaders, device=device, dataset_sizes=dataset_sizes,
-                                     num_epochs=100)
+                                     num_epochs=num_epochs)
 
         torch.save(model_ft.state_dict(), '{}.pth'.format(model_name))
         pickle.dump(hist, open('{}.list'.format(model_name), "wb"))
@@ -58,4 +58,4 @@ def resnet_classification(loading_model=False, model_name='resnet101'):
 
 
 if __name__ == '__main__':
-    model_ft, hist = resnet_classification(loading_model=False, model_name='resnet101')
+    model_ft, hist = resnet_classification(loading_model=False, model_name='resnet50_binary300', num_epochs=25)

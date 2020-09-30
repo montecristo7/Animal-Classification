@@ -1,3 +1,4 @@
+import pandas as pd
 from torchvision import transforms
 
 # regulated_size = (1440, 1920)
@@ -17,33 +18,11 @@ default_val_transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
-species_category = {
-    'Guerlinguetus': 'Rodents',
-    'CuniculusPaca': 'Rodents',
-    'Rodent': 'Rodents',
-    'MarmosopsIncanus': 'Opossums',
-    'MetachirusMyosurus': 'Opossums',
-    'DidelphisAurita': 'Opossums',
-    'CaluromysPhilander': 'Opossums',
-    'Ghost': 'Ghost',
-    'LeopardusWiedii': 'Felines',
-    'LeopardusPardalis': 'Felines',
-    'Bird': 'Birds',
-    'PenelopeSuperciliaris': 'Birds',
-    'LeptotilaRufaxilla': 'Birds',
-    'CabassousTatouay': 'SmallMammals',
-    'TamanduaTetradactyla': 'SmallMammals',
-    'EuphractusSexcinctus': 'SmallMammals',
-    'ProcyonCancrivorus': 'SmallMammals',
-    'DasypusNovemcinctus': 'SmallMammals',
-    'NasuaNasua': 'SmallMammals',
-    'EiraBarbara': 'SmallMammals',
-    'SalvatorMerianae': 'Reptiles',
-    'CerdocyonThous': 'Canines',
-    'CanisLupusFamiliaris': 'Canines',
-    'Unknown': 'Exclude',
-    'Human': 'Exclude',
-    'team': 'Exclude',
-    'NonIdent': 'Exclude'
-}
 
+def get_image_category(base_category='species_new', target_category='species_binary'):
+    image_category = pd.read_csv('brazil_amld.csv')
+    image_category = image_category[image_category.file_type == 'jpg']
+    cateory = image_category[['species', 'species_new', 'species_binary', 'genus', 'family', 'order', 'class']]
+    cateory = cateory.drop_duplicates()
+
+    return cateory.set_index(base_category).to_dict()[target_category]

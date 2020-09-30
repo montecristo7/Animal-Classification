@@ -2,3 +2,5 @@
 /videos/
 *.list
 *.pth
+/trainval/
+/test/
