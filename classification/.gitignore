@@ -1,2 +1,8 @@
 /images/
 /videos/
+*.list
+*.pth
+/trainval/
+/test/
+/savefig/
+/DebugMe.py
