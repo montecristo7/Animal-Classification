@@ -1,4 +1,5 @@
 import pickle
+import multiprocessing
 
 import torch
 import torch.nn as nn
@@ -13,7 +14,7 @@ def resnet_classification(loading_model=False, image_root='trainval', model_name
     image_datasets = {x: ClassificationDataset(set_name=x, root_dir=image_root, target_category=target_category)
                       for x in ['train', 'validation']}
     dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=6,
-                                                  shuffle=True, num_workers=6)
+                                                  shuffle=True, num_workers= multiprocessing.cpu_count() // 2)
                    for x in ['train', 'validation']}
     class_names = image_datasets['train'].classes
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -46,4 +47,9 @@ def resnet_classification(loading_model=False, image_root='trainval', model_name
 
 
 if __name__ == '__main__':
-    model_ft, hist = resnet_classification(loading_model=False, model_name='resnet50_binary300', num_epochs=5, target_category='species_binary')
+    model_ft, hist = resnet_classification(
+        loading_model=False,
+        model_name='resnet50_multi_class_300',
+        num_epochs=20,
+        target_category='class',
+    )
