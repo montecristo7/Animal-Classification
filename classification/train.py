@@ -46,4 +46,4 @@ def resnet_classification(loading_model=False, image_root='trainval', model_name
 
 
 if __name__ == '__main__':
-    model_ft, hist = resnet_classification(loading_model=False, model_name='resnet50_binary300', num_epochs=25)
+    model_ft, hist = resnet_classification(loading_model=False, model_name='resnet50_binary300', num_epochs=5, target_category='species_binary')
