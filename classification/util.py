@@ -87,7 +87,7 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device, dat
             'epoch_loss': [],
             'epoch_acc': [],
         },
-        'validation': {
+        'val': {
             'epoch_loss': [],
             'epoch_acc': [],
         }
@@ -100,8 +100,8 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device, dat
         print('Epoch {}/{}'.format(epoch + 1, num_epochs))
         print('-' * 10)
 
-        # Each epoch has a training and validation phase
-        for phase in ['train', 'validation']:
+        # Each epoch has a training and val phase
+        for phase in ['train', 'val']:
             if phase == 'train':
                 model.train()  # Set model to training mode
             else:
@@ -143,7 +143,7 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device, dat
                 phase, epoch_loss, epoch_acc))
 
             # deep copy the model
-            if phase == 'validation' and epoch_acc > best_acc:
+            if phase == 'val' and epoch_acc > best_acc:
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
 
