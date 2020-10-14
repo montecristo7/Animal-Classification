@@ -50,7 +50,7 @@ def resnet_classification(loading_model=False, image_root='image', model_name='r
 if __name__ == '__main__':
     model_ft, hist = resnet_classification(
         loading_model=False,
-        model_name='resnet50_multi_class_300',
+        model_name='resnet101_binary_300',
         num_epochs=20,
-        target_category='class',
+        target_category='species_binary',
     )
