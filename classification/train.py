@@ -1,5 +1,5 @@
-import pickle
 import multiprocessing
+import pickle
 
 import torch
 import torch.nn as nn
@@ -10,15 +10,16 @@ from classification_dataload import ClassificationDataset
 from util import train_model, initialize_model
 
 
-def resnet_classification(loading_model=False, image_root='trainval', model_name='resnet101', target_category='species_binary', num_epochs=10):
+def resnet_classification(loading_model=False, image_root='image', model_name='resnet101',
+                          target_category='species_binary', num_epochs=10):
     image_datasets = {x: ClassificationDataset(set_name=x, root_dir=image_root, target_category=target_category)
-                      for x in ['train', 'validation']}
+                      for x in ['train', 'val']}
     dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=6,
-                                                  shuffle=True, num_workers= multiprocessing.cpu_count() // 2)
-                   for x in ['train', 'validation']}
+                                                  shuffle=True, num_workers=multiprocessing.cpu_count() // 2)
+                   for x in ['train', 'val']}
     # class_names = image_datasets['train'].classes
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'validation']}
+    dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
 
     model_ft = initialize_model(model_name)
 
