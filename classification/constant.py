@@ -24,5 +24,7 @@ def get_image_category(base_category='species_new', target_category='species_bin
     image_category = image_category[image_category.file_type == 'jpg']
     cateory = image_category[['species', 'species_new', 'species_binary', 'genus', 'family', 'order', 'class']]
     cateory = cateory.drop_duplicates()
-
-    return cateory.set_index(base_category).to_dict()[target_category]
+    if base_category == target_category:
+        return {i: i for i in cateory[base_category].to_list()}
+    else:
+        return cateory.set_index(base_category).to_dict()[target_category]

@@ -12,7 +12,7 @@ class ClassificationDataset(Dataset):
     def __init__(self, set_name, root_dir, val_size=0.15, random_state=1, exclude_category=('Exclude',),
                  target_category='species_binary'):
 
-        self.root_dir = root_dir
+        self.root_dir = pathlib.Path(root_dir) / set_name
         species_category = get_image_category(target_category=target_category)
 
         raw_files = [file.split('.')[0].split('_') for file in os.listdir(root_dir) if file.endswith('.jpg')]
