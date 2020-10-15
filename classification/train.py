@@ -12,8 +12,9 @@ from util import train_model, initialize_model
 
 def resnet_classification(loading_model=False, image_root='image', model_name='resnet101',
                           target_category='species_binary', num_epochs=10):
-    image_datasets = {x: ClassificationDataset(set_name=x, root_dir=image_root, target_category=target_category)
-                      for x in ['train', 'val']}
+    image_datasets = {
+        x: ClassificationDataset(set_name=x, root_dir=image_root, target_category=target_category, flip_image=True)
+        for x in ['train', 'val']}
     dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=6,
                                                   shuffle=True, num_workers=multiprocessing.cpu_count() // 2)
                    for x in ['train', 'val']}
@@ -50,7 +51,7 @@ def resnet_classification(loading_model=False, image_root='image', model_name='r
 if __name__ == '__main__':
     model_ft, hist = resnet_classification(
         loading_model=False,
-        model_name='resnet101_binary_300',
-        num_epochs=20,
+        model_name='resnet50_binary_300_noflip',
+        num_epochs=10,
         target_category='species_binary',
     )

@@ -2,14 +2,14 @@ import os
 import pathlib
 
 from skimage import io
-from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset
 
 from constant import default_train_transform, default_val_transform, get_image_category
 
 
 class ClassificationDataset(Dataset):
-    def __init__(self, set_name, root_dir, exclude_category=('Exclude',), target_category='species_binary'):
+    def __init__(self, set_name, root_dir, exclude_category=('Exclude',), target_category='species_binary',
+                 flip_image=False):
 
         self.root_dir = pathlib.Path(root_dir) / set_name
         species_category = get_image_category(target_category=target_category)
@@ -26,7 +26,7 @@ class ClassificationDataset(Dataset):
 
         self.dataset = self.image_files
 
-        if set_name == 'train':
+        if set_name == 'train' and flip_image:
             self.transform_func = default_train_transform
         else:
             self.transform_func = default_val_transform
