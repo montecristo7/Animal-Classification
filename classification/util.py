@@ -145,7 +145,8 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device, dat
     }
 
     best_model_wts = copy.deepcopy(model.state_dict())
-    best_acc = 0.0
+    min_loss = numpy.inf
+    best_acc = 0.
 
     for epoch in range(num_epochs):
         print('Epoch {}/{}'.format(epoch + 1, num_epochs))
@@ -194,7 +195,8 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device, dat
                 phase, epoch_loss, epoch_acc))
 
             # deep copy the model
-            if phase == 'val' and epoch_acc >= best_acc:
+            if phase == 'val' and epoch_loss < min_loss:
+                min_loss = epoch_loss
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
 
@@ -207,6 +209,7 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device, dat
     print('Training complete in {:.0f}m {:.0f}s'.format(
         time_elapsed // 60, time_elapsed % 60))
     print('Best val Acc: {:4f}'.format(best_acc))
+    print('Best val loss: {:4f}'.format(min_loss))
 
     # load best model weights
     model.load_state_dict(best_model_wts)
