@@ -38,11 +38,15 @@ def acc_curve(hist, savefig=None):
     plt.plot(range(1, len(val_acc) + 1), val_acc, label='Valididation Acc')
     plt.ylim((0.5, 1))
 
-    plt.xlabel('epochs')
-    plt.ylabel('Accuracy')
-    plt.title('Accuracy Curve')
+    plt.xlabel('Epochs', fontsize=18)
+    plt.ylabel('Accuracy', fontsize=18)
+
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+
+    plt.title('Accuracy Curve', fontsize=20)
     # show the legend
-    plt.legend()
+    plt.legend(fontsize=15)
     if savefig:
         fig1 = plt.gcf()
         plt.savefig(pathlib.Path('savefig') / '{}.png'.format(savefig), dpi=100)
@@ -58,11 +62,15 @@ def loss_curve(hist, savefig=None):
     plt.plot(range(1, len(val_loss) + 1), val_loss, label='Valididation Loss')
     plt.ylim(0)
 
-    plt.xlabel('epochs')
-    plt.ylabel('Loss')
-    plt.title('Loss Curve')
+    plt.xlabel('Epochs', fontsize=18)
+    plt.ylabel('Loss', fontsize=18)
+
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+
+    plt.title('Loss Curve', fontsize=20)
     # show the legend
-    plt.legend()
+    plt.legend(fontsize=15)
     if savefig:
         fig1 = plt.gcf()
         plt.savefig(pathlib.Path('savefig') / '{}.png'.format(savefig), dpi=100)
