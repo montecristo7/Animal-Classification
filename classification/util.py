@@ -1,8 +1,11 @@
 import copy
+import pathlib
+import pickle
 import time
 
 import numpy
 import torch
+import torch.nn as nn
 from matplotlib import pyplot as plt
 from sklearn import metrics
 from torchvision import models
@@ -24,6 +27,46 @@ def imshow(inps, title=None, savefig=None):
         fig1 = plt.gcf()
         fig1.savefig(savefig, dpi=100, facecolor='w', edgecolor='k')
     plt.pause(0.001)  # pause a bit so that plots are updated
+
+
+def acc_curve(hist, savefig=None):
+    train_acc = [float(i) for i in hist['train']['epoch_acc']]
+    val_acc = [float(i) for i in hist['val']['epoch_acc']]
+
+    plt.figure(figsize=(15, 12))
+    plt.plot(range(1, len(train_acc) + 1), train_acc, label='Train Acc')
+    plt.plot(range(1, len(val_acc) + 1), val_acc, label='Valididation Acc')
+    plt.ylim((0.5, 1))
+
+    plt.xlabel('epochs')
+    plt.ylabel('Accuracy')
+    plt.title('Accuracy Curve')
+    # show the legend
+    plt.legend()
+    if savefig:
+        fig1 = plt.gcf()
+        plt.savefig(pathlib.Path('savefig') / '{}.png'.format(savefig), dpi=100)
+    plt.show()
+
+
+def loss_curve(hist, savefig=None):
+    train_loss = [float(i) for i in hist['train']['epoch_loss']]
+    val_loss = [float(i) for i in hist['val']['epoch_loss']]
+
+    plt.figure(figsize=(15, 12))
+    plt.plot(range(1, len(train_loss) + 1), train_loss, label='Train Loss')
+    plt.plot(range(1, len(val_loss) + 1), val_loss, label='Valididation Loss')
+    plt.ylim(0)
+
+    plt.xlabel('epochs')
+    plt.ylabel('Loss')
+    plt.title('Loss Curve')
+    # show the legend
+    plt.legend()
+    if savefig:
+        fig1 = plt.gcf()
+        plt.savefig(pathlib.Path('savefig') / '{}.png'.format(savefig), dpi=100)
+    plt.show()
 
 
 def roc(lr_probs, testy, savefig=None):
@@ -143,7 +186,7 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device, dat
                 phase, epoch_loss, epoch_acc))
 
             # deep copy the model
-            if phase == 'val' and epoch_acc > best_acc:
+            if phase == 'val' and epoch_acc >= best_acc:
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
 
@@ -162,7 +205,7 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device, dat
     return model, hist
 
 
-def initialize_model(model_name):
+def initialize_model(model_name, in_features, device):
     if model_name.startswith('resnet101'):
         model_ft = models.resnet101(pretrained=True)
     elif model_name.startswith('resnet50'):
@@ -175,4 +218,17 @@ def initialize_model(model_name):
         model_ft = models.resnet152(pretrained=True)
     else:
         raise ValueError('unknown resnet model {}'.format(model_name))
-    return model_ft
+
+    num_ftrs = model_ft.fc.in_features
+    model_ft.fc = nn.Linear(num_ftrs, in_features)
+    model_ft = model_ft.to(device)
+
+    try:
+        model_ft.load_state_dict(torch.load('{}.pth'.format(model_name)))
+        hist = pickle.load(open('{}.list'.format(model_name), "rb"))
+        print('Loading customized pre-trained model')
+    except Exception:
+        print('Loading empty pre-trained model')
+        hist = None
+
+    return model_ft, hist

@@ -20,7 +20,8 @@ class ClassificationDataset(Dataset):
             self.image_files = [image for image in self.image_files if image[0] not in exclude_category]
 
         self.species = [spec[0] for spec in self.image_files]
-        unique_species = sorted(list(set(self.species)))
+        # Make sure 'Ghost' will be the first if it exist
+        unique_species = sorted(list(set(self.species)), key=lambda x: '#' if x == 'Ghost' else x)
         self.species_classes_map = {spec: unique_species.index(spec) for spec in unique_species}
         self.classes = list(self.species_classes_map.keys())
 
