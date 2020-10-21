@@ -19,8 +19,8 @@ default_val_transform = transforms.Compose([
 ])
 
 
-def get_image_category(base_category='species_new', target_category='species_binary'):
-    image_category = pd.read_csv('brazil_amld.csv')
+def get_image_category(base_category='species_new', target_category='species_binary', source_file='data_interim.csv'):
+    image_category = pd.read_csv(source_file)
     image_category = image_category[image_category.file_type == 'jpg']
     cateory = image_category[['species', 'species_new', 'species_binary', 'genus', 'family', 'order', 'class']]
     cateory = cateory.drop_duplicates()
