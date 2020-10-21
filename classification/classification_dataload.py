@@ -33,7 +33,7 @@ class ClassificationDataset(Dataset):
             self.transform_func = default_val_transform
 
         self.data_set_species = [spec[0] for spec in self.dataset]
-        self.cam_trap = [spec[3] if len(spec) == 12 else '_'.join(spec[3:5]) for spec in self.dataset]
+        self.cam_trap = [spec[4] if len(spec) == 13 else '_'.join(spec[4:6]) for spec in self.dataset]
 
     def __len__(self):
         return len(self.dataset)
