@@ -2,7 +2,7 @@ import pandas as pd
 from torchvision import transforms
 
 # regulated_size = (1440, 1920)
-regulated_size = 300
+regulated_size = 300, 450
 
 default_train_transform = transforms.Compose([
     transforms.ToPILImage(),
