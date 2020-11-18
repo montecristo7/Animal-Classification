@@ -59,6 +59,6 @@ if __name__ == '__main__':
         model_name='resnet101_order_class_300_newdata',
         num_epochs=15,
         target_category='order_class',
-        # exclude_category=('Exclude', ),
-        exclude_category=('Exclude', 'Ghost'),
+        exclude_category=('Exclude', ),
+        # exclude_category=('Exclude', 'Ghost'),
     )
