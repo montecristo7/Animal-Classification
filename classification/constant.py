@@ -19,10 +19,11 @@ default_val_transform = transforms.Compose([
 ])
 
 
-def get_image_category(base_category='species_new', target_category='species_binary', source_file='data_interim.csv'):
+def get_image_category(base_category='species_new', target_category='species_binary', source_file='data_order_class.csv'):
     image_category = pd.read_csv(source_file)
     image_category = image_category[image_category.file_type == 'jpg']
-    cateory = image_category[['species', 'species_new', 'species_binary', 'genus', 'family', 'order', 'class']]
+    traditional_category = ['species', 'species_new', 'species_binary', 'genus', 'family', 'order', 'class']
+    cateory = image_category[list(set(traditional_category + [base_category, target_category]))]
     cateory = cateory.drop_duplicates()
     if base_category == target_category:
         return {i: i for i in cateory[base_category].to_list()}
