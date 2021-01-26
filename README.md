@@ -27,6 +27,6 @@ sample for brazil_amld:
 
 
 
-————————————————————————————————————————————————————————————————————————————————————————————————————————
+——————————————————————————————————————————————————————————————————————
 # [Click to Goals and Reports folder](https://gitlab.oit.duke.edu/duke-mids/workingprojectrepositories/2020-2021/camera-trap-imaging/-/tree/master/GoalsAndReports)
 
