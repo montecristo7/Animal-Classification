@@ -1,5 +1,7 @@
 # Saving Nature Capstone Project
 
+# [Click to Goals and Reports folder](https://gitlab.oit.duke.edu/duke-mids/workingprojectrepositories/2020-2021/camera-trap-imaging/-/tree/master/GoalsAndReports)
+
 ## 1. Conda environment setup
 
 `conda env create --file environment.yaml -n savingnature`
@@ -26,9 +28,4 @@ sample for brazil_amld:
 `python3 src/data/create_dataset.py image_classification dataset01 brazil_amld 0.7 0.1 0.2 0`
 
 
-
-
-
-
-# [Click to Goals and Reports folder](https://gitlab.oit.duke.edu/duke-mids/workingprojectrepositories/2020-2021/camera-trap-imaging/-/tree/master/GoalsAndReports)
 
