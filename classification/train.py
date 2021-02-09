@@ -17,7 +17,7 @@ def resnet_classification(loading_model=False, image_root='image', model_name='r
                                  exclude_category=exclude_category,
                                  flip_image=False)
         for x in ['train', 'val']}
-    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=6,
+    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,
                                                   shuffle=True, num_workers=multiprocessing.cpu_count() // 2)
                    for x in ['train', 'val']}
     # class_names = image_datasets['train'].classes
@@ -56,9 +56,9 @@ def resnet_classification(loading_model=False, image_root='image', model_name='r
 if __name__ == '__main__':
     model_ft, hist = resnet_classification(
         loading_model=False,
-        model_name='resnet101_order_class_300_newdata',
-        num_epochs=15,
-        target_category='order_class',
+        model_name='resnet101_species_binary_cropBtm',
+        num_epochs=20,
+        target_category='species_binary',
         exclude_category=('Exclude', ),
         # exclude_category=('Exclude', 'Ghost'),
     )
