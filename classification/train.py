@@ -20,8 +20,13 @@ def resnet_classification(loading_model=False, image_root='image_new', model_nam
     dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,
                                                   shuffle=True, num_workers=multiprocessing.cpu_count() // 2)
                    for x in ['train', 'val']}
-    # class_names = image_datasets['train'].classes
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+    using_gpu = torch.cuda.is_available()
+    if using_gpu:
+        print('Using GPU!')
+    else:
+        print('Using CPU!')
+    device = torch.device("cuda:0" if using_gpu else "cpu")
     dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
 
     model_ft, hist_pre = initialize_model(model_name, in_features=len(dataloaders['train'].dataset.classes),
@@ -56,8 +61,8 @@ def resnet_classification(loading_model=False, image_root='image_new', model_nam
 if __name__ == '__main__':
     model_ft, hist = resnet_classification(
         loading_model=False,
-        model_name='resnet101_binary_testrun',
-        num_epochs=2,
+        model_name='resnet101_binary_10047',
+        num_epochs=10,
         target_category='binary',
         exclude_category=('Human', 'Unknown'),
         # exclude_category=('Exclude', 'Ghost'),

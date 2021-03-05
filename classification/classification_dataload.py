@@ -56,7 +56,8 @@ class ClassificationDataset(Dataset):
             df = df[df['set'] == set_name]
 
         if exclude_category:
-            self.dataset = df[~df[target_category].isin(exclude_category)]
+            df = df[~df[target_category].isin(exclude_category)]
+        self.dataset = df
 
         if self.dataset is None or self.dataset.empty:
             raise ValueError('empty dataset!!')
@@ -67,6 +68,7 @@ class ClassificationDataset(Dataset):
         unique_species = sorted(list(set(self.species)), key=lambda x: '#' if x == 'Ghost' else x)
         self.species_classes_map = {spec: unique_species.index(spec) for spec in unique_species}
         self.classes = list(self.species_classes_map.keys())
+        print('Available classes: ' + ', '.join(self.classes))
 
         if set_name == 'train' and flip_image:
             self.transform_func = default_train_transform
