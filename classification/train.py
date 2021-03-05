@@ -10,10 +10,10 @@ from classification_dataload import ClassificationDataset
 from util import train_model, initialize_model
 
 
-def resnet_classification(loading_model=False, image_root='image', model_name='resnet101',
-                          target_category='species_binary', num_epochs=10, exclude_category=('Exclude',)):
+def resnet_classification(loading_model=False, image_root='image_new', model_name='resnet101',
+                          target_category='binary', num_epochs=10, exclude_category=('Human', 'Unknown')):
     image_datasets = {
-        x: ClassificationDataset(set_name=x, root_dir=image_root, target_category=target_category,
+        x: ClassificationDataset(set_name=x, image_root=image_root, target_category=target_category,
                                  exclude_category=exclude_category,
                                  flip_image=False)
         for x in ['train', 'val']}
@@ -56,9 +56,9 @@ def resnet_classification(loading_model=False, image_root='image', model_name='r
 if __name__ == '__main__':
     model_ft, hist = resnet_classification(
         loading_model=False,
-        model_name='resnet101_species_binary_cropBtm',
-        num_epochs=20,
-        target_category='species_binary',
-        exclude_category=('Exclude', ),
+        model_name='resnet101_binary_testrun',
+        num_epochs=2,
+        target_category='binary',
+        exclude_category=('Human', 'Unknown'),
         # exclude_category=('Exclude', 'Ghost'),
     )
