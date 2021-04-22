@@ -1,5 +1,6 @@
 import multiprocessing
 import pickle
+from datetime import datetime
 
 import torch
 import torch.nn as nn
@@ -10,12 +11,12 @@ from classification_dataload import ClassificationDataset
 from util import train_model, initialize_model
 
 
-def resnet_classification(loading_model=False, image_root='image_new', model_name='resnet101',
+def resnet_classification(loading_model=False,  model_name='resnet101',
                           target_category='binary', num_epochs=10, exclude_category=('Human', 'Unknown')):
     image_datasets = {
-        x: ClassificationDataset(set_name=x, image_root=image_root, target_category=target_category,
+        x: ClassificationDataset(set_name=x, target_category=target_category,
                                  exclude_category=exclude_category,
-                                 flip_image=False)
+                                 flip_image=True)
         for x in ['train', 'val']}
     dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,
                                                   shuffle=True, num_workers=multiprocessing.cpu_count() // 2)
@@ -59,11 +60,17 @@ def resnet_classification(loading_model=False, image_root='image_new', model_nam
 
 
 if __name__ == '__main__':
+    target_category = 'species'
+    exclude_category = ('Human', )
+    num_epochs = 15
+
+    model_name = f'resnet101_{target_category}_{datetime.now().strftime("%Y%m%d")}'
+    print(f'Run Model: {model_name} with epochs {num_epochs}')
+
     model_ft, hist = resnet_classification(
         loading_model=False,
-        model_name='resnet101_binary_10047',
-        num_epochs=10,
-        target_category='binary',
-        exclude_category=('Human', 'Unknown'),
-        # exclude_category=('Exclude', 'Ghost'),
+        model_name=model_name,
+        num_epochs=num_epochs,
+        target_category=target_category,
+        exclude_category=exclude_category,
     )

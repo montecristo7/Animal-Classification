@@ -20,8 +20,8 @@ class CropTheBottomStrip(object):
 default_train_transform = transforms.Compose([
     transforms.ToPILImage(),
     transforms.Resize(size=regulated_size),
-    CropTheBottomStrip(),
-    transforms.RandomRotation(degrees=15),
+    # CropTheBottomStrip(),
+    transforms.RandomRotation(degrees=5),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
 ])
@@ -29,7 +29,7 @@ default_train_transform = transforms.Compose([
 default_val_transform = transforms.Compose([
     transforms.ToPILImage(),
     transforms.Resize(size=regulated_size),
-    CropTheBottomStrip(),
+    # CropTheBottomStrip(),
     transforms.ToTensor(),
 ])
 
